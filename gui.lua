@@ -158,7 +158,7 @@ local Label = Game:CreateLabel("Auto Steal", 0, Color3.fromRGB(51, 51, 51), fals
 local PlayerDropdown = Game:CreateDropdown({
     Name = "Target",
     Options = GetPlayerNames(),
-    CurrentOption = {},
+    CurrentOption = GetPlayerNames()[1],
     MultipleOptions = false,
     Flag = "Dropdown1",
     Callback = function(Options)
@@ -308,9 +308,30 @@ local function ServerHop()
     end
 end
 
+-- :: Instant Proximity Prompts
+
+local function MakePromptInstant(prompt)
+    if prompt:IsA("ProximityPrompt") then
+        prompt.HoldDuration = 0
+    end
+end
+
 local ServerHopButton = General:CreateButton({
     Name = "Server Hop",
     Callback = function()
         ServerHop()
+    end
+})
+
+local InstantProximityPromptsButton = General:CreateButton({
+    Name = "Instant Proximity Prompts",
+    Callback = function()
+        for _, prompt in ipairs(workspace:GetDescendants()) do
+            MakePromptInstant(prompt)
+        end
+
+        workspace.DescendantAdded:Connect(function(descendant)
+            MakePromptInstant(descendant)
+        end)
     end
 })
