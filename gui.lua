@@ -5,6 +5,8 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 
 -- FUNCTIONS
 local function GetPlayerNames()
@@ -245,7 +247,7 @@ local AutoLockToggle = Game:CreateToggle({
                             if hrp then
                                 local position = hrp.CFrame
 
-                                hrp.CFrame = lockPad.CFrame
+                                hrp.CFrame = lockPad.CFrame * CFrame.new(0, 2, 0)
                                 task.wait(0.1)
 
                                 hrp.CFrame = position
@@ -365,6 +367,56 @@ Players.PlayerRemoving:Connect(function(player)
     PlayerDropdown2:Refresh(names)
 end)
 
+-- :: Teleports
+
+local Divider3 = Game:CreateDivider()
+
+local Label4 = Game:CreateLabel("Teleports", 0, Color3.fromRGB(51, 51, 51), false)
+
+local TeleportToBaseButton = Game:CreateButton({
+    Name = "Teleport To Base",
+    Callback = function()
+        local character = player.Character
+
+        if character then
+            local hrp = character:FindFirstChild("HumanoidRootPart")
+
+            if hrp then
+                hrp.CFrame = base.Important.RobberyDeposit.CFrame
+            end
+        end
+    end,
+})
+
+local player_base = "1"
+
+local BasesDropdown = Game:CreateDropdown({
+    Name = "Base",
+    Options = {"1", "2", "3", "4", "5", "6", "7", "8"},
+    CurrentOption = "1",
+    MultipleOptions = false,
+    Flag = "Dropdown6",
+    Callback = function(Options)
+        player_base = Options[1]
+        print("[Teleport] SELECT BASE:", player_base)
+    end,
+})
+
+local TeleportToBaseButton = Game:CreateButton({
+    Name = "Teleport To Selected Base",
+    Callback = function()
+        local character = player.Character
+
+        if character then
+            local hrp = character:FindFirstChild("HumanoidRootPart")
+
+            if hrp then
+                hrp.CFrame = workspace.Map.Bases[player_base].Important.RobberyDeposit.CFrame
+            end
+        end
+    end,
+})
+
 -- General
 -- :: Server Hop
 
@@ -423,3 +475,112 @@ local InstantProximityPromptsButton = General:CreateButton({
         end)
     end
 })
+
+-- :: Fly
+
+local FlyEnabled = false
+local flyConnection = nil
+local bodyVelocity = nil
+local bodyGyro = nil
+
+local FLY_SPEED = 50
+
+local function StartFly()
+    local character = player.Character
+    if not character then return end
+
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if not hrp or not humanoid then return end
+
+    humanoid.PlatformStand = true
+
+    bodyVelocity = Instance.new("BodyVelocity")
+    bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+    bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+    bodyVelocity.Parent = hrp
+
+    bodyGyro = Instance.new("BodyGyro")
+    bodyGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+    bodyGyro.P = 3000
+    bodyGyro.CFrame = hrp.CFrame
+    bodyGyro.Parent = hrp
+
+    flyConnection = RunService.RenderStepped:Connect(function()
+        local camera = workspace.CurrentCamera
+        local moveDirection = Vector3.new(0, 0, 0)
+
+        if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+            moveDirection = moveDirection + camera.CFrame.LookVector
+        end
+        if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+            moveDirection = moveDirection - camera.CFrame.LookVector
+        end
+        if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+            moveDirection = moveDirection - camera.CFrame.RightVector
+        end
+        if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+            moveDirection = moveDirection + camera.CFrame.RightVector
+        end
+        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+            moveDirection = moveDirection + Vector3.new(0, 1, 0)
+        end
+        if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then
+            moveDirection = moveDirection - Vector3.new(0, 1, 0)
+        end
+
+        if moveDirection.Magnitude > 0 then
+            moveDirection = moveDirection.Unit
+        end
+
+        bodyVelocity.Velocity = moveDirection * FLY_SPEED
+        bodyGyro.CFrame = camera.CFrame
+    end)
+end
+
+local function StopFly()
+    if flyConnection then
+        flyConnection:Disconnect()
+        flyConnection = nil
+    end
+
+    if bodyVelocity then
+        bodyVelocity:Destroy()
+        bodyVelocity = nil
+    end
+
+    if bodyGyro then
+        bodyGyro:Destroy()
+        bodyGyro = nil
+    end
+
+    local character = player.Character
+    if character then
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.PlatformStand = false
+        end
+    end
+end
+
+local FlyToggle = General:CreateToggle({
+    Name = "Fly",
+    CurrentValue = false,
+    Flag = "Toggle4",
+    Callback = function(v)
+        FlyEnabled = v
+        if v then
+            StartFly()
+        else
+            StopFly()
+        end
+    end,
+})
+
+player.CharacterAdded:Connect(function()
+    task.wait(1)
+    if FlyEnabled then
+        StopFly()
+        StartFly()
+    end
+end)
