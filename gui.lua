@@ -186,6 +186,8 @@ local StealButton = Game:CreateButton({
     Callback = function()
         target_base = findBase(target)
 
+        if not target_base then return end
+
         local slots = target_base.Layers[layer].SlotPads:GetChildren()
 
         for _, slot in slots do
@@ -208,9 +210,9 @@ local StealButton = Game:CreateButton({
                         hrp.CFrame = npc_hrp.CFrame
                         task.wait(0.2)
                         activatePrompt(steal)
-                        task.wait(0.2)
+                        task.wait(0.1)
                         hrp.CFrame = base.Important.RobberyDeposit.CFrame
-                        task.wait(1)
+                        task.wait(0.3)
                         print("[AutoSteal] STOLE NPC:", npc:GetAttribute("CharacterId"))
                     end
                 end
