@@ -419,6 +419,61 @@ local TeleportToBaseButton = Game:CreateButton({
     end,
 })
 
+-- :: Auto Sell
+local Divider2 = Game:CreateDivider()
+
+local Label3 = Game:CreateLabel("Auto Sell", 0, Color3.fromRGB(51, 51, 51), false)
+
+local layer3 = "1"
+
+local LayerDropdown3 = Game:CreateDropdown({
+    Name = "Layer",
+    Options = {"1", "2", "3", "4", "5", "6", "7"},
+    CurrentOption = {"1"},
+    MultipleOptions = false,
+    Flag = "Dropdown7",
+    Callback = function(Options)
+        layer3 = Options[1]
+        print("[Rayfield] LAYER:", layer3)
+    end,
+})
+
+local SellButton = Game:CreateButton({
+    Name = "Sell",
+    Callback = function()
+        print(base)
+
+        local slots = base.Layers[layer3].SlotPads:GetChildren()
+        print("Debug #1")
+
+        for _, slot in slots do
+            local npc = slot:FindFirstChild("Character")
+
+            if npc then
+                local npc_hrp = npc:FindFirstChild("HumanoidRootPart")
+
+                local character = player.Character
+
+                if character then
+                    local hrp = character:FindFirstChild("HumanoidRootPart")
+
+                    if hrp then
+                        FaceDown()
+                        ZoomIn()
+                        hrp.CFrame = npc_hrp.CFrame
+                        task.wait(0.2)
+                        activatePrompt(npc_hrp.SlotPrompt)
+                        task.wait(0.1)
+                    end
+                end
+            end
+        end
+        ZoomOut()
+        local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+        hrp.CFrame = base.Important.RobberyDeposit.CFrame
+    end,
+})
+
 -- General
 -- :: Server Hop
 
