@@ -566,7 +566,7 @@ end
 local FlyToggle = General:CreateToggle({
     Name = "Fly",
     CurrentValue = false,
-    Flag = "Toggle4",
+    Flag = "Toggle2",
     Callback = function(v)
         FlyEnabled = v
         if v then
