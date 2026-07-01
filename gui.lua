@@ -167,21 +167,6 @@ local PlayerDropdown = Game:CreateDropdown({
     end,
 })
 
-local function UpdatePlayerDropdown()
-    PlayerDropdown:Refresh(GetPlayerNames())
-end
-
-Players.PlayerAdded:Connect(UpdatePlayerDropdown)
-Players.PlayerRemoving:Connect(function(player)
-    local names = {}
-    for _, p in ipairs(Players:GetPlayers()) do
-        if p ~= player then
-            table.insert(names, p.Name)
-        end
-    end
-    PlayerDropdown:Refresh(names)
-end)
-
 local LayerDropdown = Game:CreateDropdown({
     Name = "Layer",
     Options = {"1", "2", "3", "4", "5", "6", "7"},
@@ -362,6 +347,23 @@ local SpecifiedStealButton = Game:CreateButton({
         ZoomOut()
     end,
 })
+
+local function UpdatePlayerDropdown()
+    PlayerDropdown:Refresh(GetPlayerNames())
+    PlayerDropdown2:Refresh(GetPlayerNames())
+end
+
+Players.PlayerAdded:Connect(UpdatePlayerDropdown)
+Players.PlayerRemoving:Connect(function(player)
+    local names = {}
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= player then
+            table.insert(names, p.Name)
+        end
+    end
+    PlayerDropdown:Refresh(names)
+    PlayerDropdown2:Refresh(names)
+end)
 
 -- General
 -- :: Server Hop
