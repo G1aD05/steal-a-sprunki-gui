@@ -115,11 +115,11 @@ local Game = Window:CreateTab("Game", 0)
 local General = Window:CreateTab("General", 0)
 
 -- VARIABLES
-local target
-local layer
-
 local player = Players.LocalPlayer
 local base = findBase(player.Name)
+
+local target = player.Name
+local layer = 1
 
 print("[AutoSteal] FOUND BASE:", base.Name)
 
@@ -153,7 +153,7 @@ end
 -- ELEMENTS
 -- Game
 -- :: Auto Steal
-local Label = Game:CreateLabel("Auto Steal", 0, Color3.fromRGB(51, 51, 51), false) -- Title, Icon, Color, IgnoreTheme
+local Label1 = Game:CreateLabel("Auto Steal", 0, Color3.fromRGB(51, 51, 51), false)
 
 local PlayerDropdown = Game:CreateDropdown({
     Name = "Target",
@@ -179,7 +179,7 @@ Players.PlayerRemoving:Connect(function(player)
             table.insert(names, p.Name)
         end
     end
-    Dropdown:Refresh(names)
+    PlayerDropdown:Refresh(names)
 end)
 
 local LayerDropdown = Game:CreateDropdown({
@@ -236,7 +236,7 @@ local StealButton = Game:CreateButton({
 -- :: Auto Lock
 local Divider1 = Game:CreateDivider()
 
-local Label = Game:CreateLabel("Auto Lock", 0, Color3.fromRGB(51, 51, 51), false) -- Title, Icon, Color, IgnoreTheme
+local Label2 = Game:CreateLabel("Auto Lock", 0, Color3.fromRGB(51, 51, 51), false)
 
 local AutoLockEnabled = false
 
@@ -274,6 +274,92 @@ local AutoLockToggle = Game:CreateToggle({
                 print("[AutoLock] STOPPED")
             end)
         end
+    end,
+})
+
+-- :: Specified Steal
+local Divider2 = Game:CreateDivider()
+
+local Label3 = Game:CreateLabel("Specified Steal", 0, Color3.fromRGB(51, 51, 51), false)
+
+local target2 = player.Name
+local layer2 = 1
+local stand = 1
+
+local PlayerDropdown2 = Game:CreateDropdown({
+    Name = "Target",
+    Options = GetPlayerNames(),
+    CurrentOption = GetPlayerNames()[1],
+    MultipleOptions = false,
+    Flag = "Dropdown3",
+    Callback = function(Options)
+        target2 = Options[1]
+        print("[Rayfield] TARGET:", target2)
+    end,
+})
+
+local LayerDropdown2 = Game:CreateDropdown({
+    Name = "Layer",
+    Options = {"1", "2", "3", "4", "5", "6", "7"},
+    CurrentOption = {"1"},
+    MultipleOptions = false,
+    Flag = "Dropdown4",
+    Callback = function(Options)
+        layer2 = Options[1]
+        print("[Rayfield] LAYER:", layer2)
+    end,
+})
+
+local StandDropdown = Game:CreateDropdown({
+    Name = "Stand",
+    Options = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"},
+    CurrentOption = {"1"},
+    MultipleOptions = false,
+    Flag = "Dropdown5",
+    Callback = function(Options)
+        stand = Options[1]
+        print("[Rayfield] STAND:", stand)
+    end,
+})
+
+local SpecifiedStealButton = Game:CreateButton({
+    Name = "Steal",
+    Callback = function()
+        target_base = findBase(target2)
+
+        local slots = target_base.Layers[layer2].SlotPads:GetChildren()
+
+        for _, slot in slots do
+            if slot.Name == stand then
+                local npc = slot:FindFirstChild("Character")
+            
+                if npc then
+                    local character = player.Character
+
+                    print("[SpecifiedSteal] FOUND NPC:", npc:GetAttribute("CharacterId"))
+                    FaceDown()
+                    ZoomIn()
+
+                    if character then
+                        local hrp = character:FindFirstChild("HumanoidRootPart")
+
+                        if hrp then
+                            local npc_hrp = npc:FindFirstChild("HumanoidRootPart")
+                            local steal = npc_hrp.SlotPrompt
+
+                            hrp.CFrame = npc_hrp.CFrame
+                            task.wait(0.2)
+                            activatePrompt(steal)
+                            task.wait(0.2)
+                            hrp.CFrame = base.Important.RobberyDeposit.CFrame
+                            task.wait(1)
+                            print("[SpecifiedSteal] STOLE NPC:", npc:GetAttribute("CharacterId"))
+                        end
+                    end
+                end
+            end
+        end
+        ZoomOut()
     end,
 })
 
