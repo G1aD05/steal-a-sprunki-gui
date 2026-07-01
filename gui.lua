@@ -74,6 +74,7 @@ end
 -- WINDOW
 local Window = Rayfield:CreateWindow({
    Name = "Steal a Sprunki",
+   ScriptID = "sid_ji0crfbdx3n3",
    Icon = 0,
    LoadingTitle = "Steal a Sprunki GUI",
    LoadingSubtitle = "by Turkey",
